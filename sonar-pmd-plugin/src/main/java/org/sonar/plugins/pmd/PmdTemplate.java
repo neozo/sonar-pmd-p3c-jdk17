@@ -19,19 +19,16 @@
  */
 package org.sonar.plugins.pmd;
 
-import net.sourceforge.pmd.PMD;
-import net.sourceforge.pmd.PMDConfiguration;
-import net.sourceforge.pmd.Report;
-import net.sourceforge.pmd.RuleSet;
+import net.sourceforge.pmd.*;
 import net.sourceforge.pmd.lang.LanguageVersion;
 import net.sourceforge.pmd.lang.java.JavaLanguageModule;
 import net.sourceforge.pmd.renderers.EmptyRenderer;
-import net.sourceforge.pmd.util.datasource.DataSource;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import java.nio.charset.Charset;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class PmdTemplate {
@@ -41,9 +38,6 @@ public class PmdTemplate {
 
     private static Map<String, String> prepareVersions() {
         final Map<String, String> versions = new HashMap<>();
-        versions.put("1.1", "1.3");
-        versions.put("1.2", "1.3");
-        versions.put("5", "1.5");
         versions.put("6", "1.6");
         versions.put("7", "1.7");
         versions.put("8", "1.8");
@@ -57,7 +51,10 @@ public class PmdTemplate {
         versions.put("1.16", "16");
         versions.put("1.17", "17");
         versions.put("1.18", "18");
-
+        versions.put("1.19", "19");
+        versions.put("1.19-preview", "19-preview");
+        versions.put("1.20", "20");
+        versions.put("1.20-preview", "20-preview");
         return versions;
     }
 
@@ -97,20 +94,13 @@ public class PmdTemplate {
         return configuration;
     }
 
-    private Collection<DataSource> toDataSources(Iterable<InputFile> files) {
-        final Collection<DataSource> dataSources = new ArrayList<>();
-
-        files.forEach(file -> dataSources.add(new ProjectDataSource(file)));
-
-        return dataSources;
-    }
-
     public Report process(Iterable<InputFile> files, RuleSet ruleset) {
-        return PMD.processFiles(
-                configuration,
-                Collections.singletonList(ruleset),
-                toDataSources(files),
-                Collections.emptyList()
-        );
+        try (PmdAnalysis pmd = PmdAnalysis.create(configuration)) {
+            pmd.addRuleSet(ruleset);
+            for (InputFile file: files) {
+                pmd.files().addFile(Paths.get(file.uri()));
+            }
+            return pmd.performAnalysisAndCollectReport();
+        }
     }
 }

@@ -23,17 +23,17 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.sonarsource.pmd</groupId>
   <artifactId>sonar-pmd</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>${revision}</version>
   <name>SonarQube PMD Project</name>
   <packaging>pom</packaging>
+  <description>Sonar-PMD is a plugin that provides coding rules from PMD for use in SonarQube.</description>
 
   <scm>
-    <connection>scm:git:https://Leibnizhu:${ACCESS_TOKEN}@github.com/Leibnizhu/sonar-pmd-p3c-jdk17.git</connection>
-    <developerConnection>scm:git:https://Leibnizhu:${ACCESS_TOKEN}@github.com/Leibnizhu/sonar-pmd-p3c-jdk17.git</developerConnection>
-    <url>https://github.com/Leibnizhu/sonar-pmd-p3c-jdk17</url>
-    <tag>HEAD</tag>
+    <connection>scm:git:git@github.com:jborgers/sonar-pmd.git</connection>
+    <developerConnection>scm:git:git@github.com:jborgers/sonar-pmd.git</developerConnection>
+    <url>https://github.com/jborgers/sonar-pmd</url>
+    <tag>${revision}</tag>
   </scm>
-
   <url>https://github.com/jborgers/sonar-pmd</url>
   <issueManagement>
     <system>Github</system>
@@ -47,7 +47,7 @@
   <licenses>
     <license>
       <name>GNU LGPL 3</name>
-      <url>http://www.gnu.org/licenses/lgpl.txt</url>
+      <url>https://www.gnu.org/licenses/lgpl.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
@@ -77,41 +77,45 @@
   </distributionManagement>
 
   <properties>
+    <!-- use -Drevision=x.y.z to override in build -->
+    <revision>3.5.2-SNAPSHOT</revision>
     <license.owner>SonarSource SA and others</license.owner>
     <license.mailto>mailto:jborgers AT jpinpoint DOT com; peter.paul.bakker AT stokpop DOT nl</license.mailto>
     <pmd.version>6.55.0</pmd.version>
-    <junit.jupiter.version>5.10.1</junit.jupiter.version>
-    <mockito.version>5.9.0</mockito.version>
-    <assertj.version>3.25.1</assertj.version>
+    <junit.jupiter.version>5.11.0-M1</junit.jupiter.version>
+    <mockito.version>5.11.0</mockito.version>
+    <assertj.version>3.25.3</assertj.version>
     <commons-lang3.version>3.14.0</commons-lang3.version>
     <staxmate.version>2.0.1</staxmate.version>
-    <java.frontend.version>7.30.1.34514</java.frontend.version>
-    <guava.version>33.0.0-jre</guava.version>
+    <java.frontend.version>7.30.0.34429</java.frontend.version>
+    <guava.version>33.2.0-jre</guava.version>
     <sslr.squid.bridge.version>2.7.1.392</sslr.squid.bridge.version>
-    <jdom.version>1.0</jdom.version>
+    <jdom2.version>2.0.6.1</jdom2.version>
     <!-- Sonar settings -->
     <version.sonar-packaging.plugin>1.23.0.740</version.sonar-packaging.plugin>
-    <sonar-plugin-api.version>9.4.0.54424</sonar-plugin-api.version>
-    <sonar-orchestrator.version>4.6.0.1748</sonar-orchestrator.version>
+    <sonar-plugin-api-impl.version>9.9.4.87374</sonar-plugin-api-impl.version>
+    <sonar-plugin-api.version>9.14.0.375</sonar-plugin-api.version>
+    <sonar-orchestrator.version>4.9.0.1920</sonar-orchestrator.version>
     <sonar-ws-client.version>5.1</sonar-ws-client.version>
     <!-- Technical settings -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
     <!-- Maven plugin versions -->
     <maven.enforcer.plugin.version>3.4.1</maven.enforcer.plugin.version>
     <maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
     <maven.failsafe.plugin.version>3.2.5</maven.failsafe.plugin.version>
     <maven.release.plugin.version>3.0.1</maven.release.plugin.version>
-    <maven.source.plugin.version>3.3.0</maven.source.plugin.version>
+    <maven.source.plugin.version>3.3.1</maven.source.plugin.version>
     <maven.javadoc.plugin.version>3.6.3</maven.javadoc.plugin.version>
-    <maven.gpg.plugin.version>3.1.0</maven.gpg.plugin.version>
-    <sonar.maven.plugin.version>3.10.0.2594</sonar.maven.plugin.version>
-    <jacoco.maven.plugin.version>0.8.11</jacoco.maven.plugin.version>
+    <maven.gpg.plugin.version>3.2.4</maven.gpg.plugin.version>
+    <maven.cleanup.plugin.version>3.3.2</maven.cleanup.plugin.version>
+    <sonar.maven.plugin.version>3.11.0.3922</sonar.maven.plugin.version>
+    <jacoco.maven.plugin.version>0.8.12</jacoco.maven.plugin.version>
+    <nexus-staging.plugin.version>1.6.13</nexus-staging.plugin.version>
     <!-- Code Coverage -->
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <sonar.coverage.jacoco.xmlReportPaths>sonar-pmd-plugin/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-    <maven.deploy.skip>true</maven.deploy.skip>
   </properties>
 
   <modules>
@@ -123,28 +127,29 @@
     <dependencies>
       <!-- SonarQube API -->
       <dependency>
-        <groupId>org.sonarsource.sonarqube</groupId>
+        <groupId>org.sonarsource.api.plugin</groupId>
         <artifactId>sonar-plugin-api</artifactId>
-        <scope>provided</scope>
         <version>${sonar-plugin-api.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.sonarqube</groupId>
         <artifactId>sonar-plugin-api-impl</artifactId>
-        <scope>test</scope>
-        <version>${sonar-plugin-api.version}</version>
+        <version>${sonar-plugin-api-impl.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.orchestrator</groupId>
         <artifactId>sonar-orchestrator</artifactId>
         <version>${sonar-orchestrator.version}</version>
-        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.orchestrator</groupId>
+        <artifactId>sonar-orchestrator-junit4</artifactId>
+        <version>${sonar-orchestrator.version}</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-ws-client</artifactId>
         <version>${sonar-ws-client.version}</version>
-        <scope>test</scope>
       </dependency>
 
       <!-- PMD -->
@@ -171,32 +176,6 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
         <version>${commons-lang3.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.osgi</groupId>
-        <artifactId>org.osgi.service.prefs</artifactId>
-        <version>1.1.2</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.platform</groupId>
-        <artifactId>org.eclipse.osgi</artifactId>
-        <version>3.18.600</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.platform</groupId>
-        <artifactId>org.eclipse.equinox.common</artifactId>
-        <version>3.18.200</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.platform</groupId>
-        <artifactId>org.eclipse.equinox.preferences</artifactId>
-        <version>3.10.400</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.platform</groupId>
-        <artifactId>org.eclipse.core.runtime</artifactId>
-        <version>3.30.0</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -227,19 +206,60 @@
     <pluginManagement>
       <plugins>
         <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>${maven.gpg.plugin.version}</version>
+        </plugin>
+        <plugin>
           <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
           <artifactId>sonar-packaging-maven-plugin</artifactId>
           <version>${version.sonar-packaging.plugin}</version>
           <configuration>
-            <!--<sonarQubeMinVersion>6.7</sonarQubeMinVersion>-->
-            <pluginApiMinVersion>6.7</pluginApiMinVersion>
-            <!--requirePlugins>java:5.14.0.18788</requirePlugins-->
+            <pluginApiMinVersion>9.9</pluginApiMinVersion>
           </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.sonatype.plugins</groupId>
+          <artifactId>nexus-staging-maven-plugin</artifactId>
+          <version>${nexus-staging.plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>${maven.cleanup.plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>${maven.enforcer.plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${maven.surefire.plugin.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
 
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-maven</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <version>3.8</version>
+                </requireMavenVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
@@ -250,6 +270,7 @@
               <!-- ${buildNumber} is the svn revision generated by the buildnumber-maven-plugin -->
               <Implementation-Build>${buildNumber}</Implementation-Build>
               <Build-Time>${timestamp}</Build-Time>
+              <Plugin-RequiredForLanguages>java</Plugin-RequiredForLanguages>
             </manifestEntries>
           </archive>
         </configuration>
@@ -258,7 +279,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${maven.surefire.plugin.version}</version>
         <configuration>
           <runOrder>random</runOrder>
         </configuration>
@@ -282,17 +302,17 @@
       </plugin>
 
       <!-- Release relevant plugins -->
-      <!--<plugin>
+      <plugin>
         <groupId>org.sonatype.plugins</groupId>
         <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>1.6.13</version>
         <extensions>true</extensions>
         <configuration>
           <serverId>sonatype-nexus</serverId>
           <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+          <skipStagingRepositoryClose>false</skipStagingRepositoryClose>
           <autoReleaseAfterClose>false</autoReleaseAfterClose>
         </configuration>
-      </plugin>-->
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
@@ -322,6 +342,7 @@
           <quiet>true</quiet>
           <source>8</source>
           <detectJavaApiLink>false</detectJavaApiLink>
+          <doclint>all,-missing</doclint>
         </configuration>
         <executions>
           <execution>
@@ -340,11 +361,9 @@
       <id>release</id>
       <build>
         <plugins>
-          <!--
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>${maven.gpg.plugin.version}</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
@@ -356,12 +375,11 @@
             </executions>
             <configuration>
               <gpgArguments>
-                <arg>&#45;&#45;pinentry-mode</arg>
+                <arg>--pinentry-mode</arg>
                 <arg>loopback</arg>
               </gpgArguments>
             </configuration>
           </plugin>
-          -->
         </plugins>
       </build>
     </profile>

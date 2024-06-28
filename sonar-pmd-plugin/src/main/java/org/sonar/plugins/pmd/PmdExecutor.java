@@ -89,13 +89,13 @@ public class PmdExecutor {
         final Optional<Report> mainReport = executeRules(pmdFactory, javaFiles(Type.MAIN), PmdConstants.REPOSITORY_KEY);
         final Optional<Report> testReport = executeRules(pmdFactory, javaFiles(Type.TEST), PmdConstants.TEST_REPOSITORY_KEY);
 
-        final Report report = mainReport
+        Report report = mainReport
                 .orElse(
-                        testReport.orElse(new Report())
+                        testReport.orElse(new Report()) // TODO solve deprecation, difficult now
                 );
 
         if (mainReport.isPresent() && testReport.isPresent()) {
-            report.merge(testReport.get());
+            report = mainReport.get().union(testReport.get());
         }
 
         pmdConfiguration.dumpXmlReport(report);
@@ -174,8 +174,17 @@ public class PmdExecutor {
     }
 
     private String getSourceVersion() {
-        return settings.get(PmdConstants.JAVA_SOURCE_VERSION)
-                .orElse(PmdConstants.JAVA_SOURCE_VERSION_DEFAULT_VALUE);
+        String reqJavaVersion = settings.get(PmdConstants.JAVA_SOURCE_VERSION).orElse(PmdConstants.JAVA_SOURCE_VERSION_DEFAULT_VALUE);
+        String bareReqJavaVersion = reqJavaVersion;
+        if (reqJavaVersion.endsWith("-preview")) {
+            bareReqJavaVersion = reqJavaVersion.substring(0, reqJavaVersion.indexOf("-preview"));
+        }
+        String effectiveJavaVersion = bareReqJavaVersion;
+        if (Float.parseFloat(bareReqJavaVersion) >= Float.parseFloat(PmdConstants.JAVA_SOURCE_MINIMUM_UNSUPPORTED_VALUE)) {
+            effectiveJavaVersion = PmdConstants.JAVA_SOURCE_MAXIMUM_SUPPORTED_VALUE;
+            LOGGER.warn("Requested Java version " + reqJavaVersion + " ('" + PmdConstants.JAVA_SOURCE_VERSION + "') is not supported by PMD. Using maximum supported version: " + PmdConstants.JAVA_SOURCE_MAXIMUM_SUPPORTED_VALUE + ".");
+        }
+        return effectiveJavaVersion;
     }
 
 }

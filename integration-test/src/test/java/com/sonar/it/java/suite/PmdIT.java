@@ -19,15 +19,9 @@
  */
 package com.sonar.it.java.suite;
 
-import static com.sonar.it.java.suite.TestUtils.keyFor;
-import static com.sonar.it.java.suite.TestUtils.keyForTest;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.sonar.it.java.suite.orchestrator.PmdTestOrchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.MavenBuild;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.JavaVersion;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -35,6 +29,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.sonar.it.java.suite.TestUtils.keyFor;
+import static com.sonar.it.java.suite.TestUtils.keyForTest;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class PmdIT {
 
@@ -46,7 +47,7 @@ class PmdIT {
     }
 
     @ParameterizedTest
-    @EnumSource(value = JavaVersion.class, mode = EnumSource.Mode.INCLUDE, names = {"JAVA_1_8", "JAVA_11", "JAVA_16"})
+    @EnumSource(value = JavaVersion.class, mode = EnumSource.Mode.INCLUDE, names = {"JAVA_1_8", "JAVA_11", "JAVA_17", "JAVA_20"})
     void testPmdExtensionsWithDifferentJavaVersions(JavaVersion version) {
 
         // given
@@ -144,7 +145,7 @@ class PmdIT {
         // then
         final List<Issue> testIssues = retrieveIssues(keyForTest());
         assertThat(testIssues).hasSize(1);
-        assertThat(testIssues.get(0).message()).matches("The class '.+?Test' might be a test class, but it contains no test cases.");
+        assertThat(testIssues.get(0).message()).matches("The class 'ProductionCodeTest' might be a test class, but it contains no test cases.");
         assertThat(testIssues.get(0).ruleKey()).isEqualTo("pmd-unit-tests:TestClassWithoutTestCases");
 
         final List<Issue> prodIssues = retrieveIssues(keyFor(projectName, "", "ProductionCode"));
